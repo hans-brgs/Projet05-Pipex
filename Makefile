@@ -20,17 +20,17 @@ SRC =
 OBJ = $(SRC:.c=.o)
 
 %.o : %.c $(DEPS)
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 all: $(NAME)
 	
 $(NAME) : $(OBJ)
 	make -C libft
 	cp libft/libft.a $(NAME)
-	ar rs $(NAME) $(OBJ)
+	ar -rs $(NAME) $(OBJ)
 
 clean :
-	rm -rf *.o
+	rm -rf $(OBJ)
 
 fclean : clean
 	rm -rf $(NAME)

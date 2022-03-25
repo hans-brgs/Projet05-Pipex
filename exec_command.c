@@ -18,7 +18,7 @@
 
 void	ft_free_array(char **array)
 {
-	size_t n;
+	size_t	n;
 
 	n = 0;
 	while (array[n])
@@ -29,26 +29,41 @@ void	ft_free_array(char **array)
 	free(array);
 }
 
-char *my_getenv(char *name, char **env)
+char	**getparam(char *cmd_arg)
+{
+	char	**param;
+	size_t	len;
+
+	len = 0;
+	while (*cmd_arg && *cmd_arg != ' ')
+	{
+		cmd_arg++;
+	}
+	cmd_arg++;
+	param = ft_split(cmd_arg, ' '); /*free ? [N]*/
+	return (param);
+}
+
+char	*my_getenv(char *name, char **env)
 {
 	char	*getenv;
-	
+
 	while (*env)
 	{
 		if (ft_strnstr(*env, name, ft_strlen(name)))
 		{
 			getenv = ft_strchr(*env, '=');
-			return(getenv + 1);
+			return (getenv + 1);
 		}
 		env++;
 	}
 	return (NULL);
 }
 
-char *getcmd(char *cmd_arg)
+char	*getcmd(char *cmd_arg)
 {
-	char *cmd;
-	size_t len;
+	char	*cmd;
+	size_t	len;
 
 	len = 0;
 	while (cmd_arg[len] && cmd_arg[len] != ' ')
@@ -58,11 +73,11 @@ char *getcmd(char *cmd_arg)
 	cmd = ft_calloc(len + 1, sizeof(char));
 	if (!cmd)
 		return (NULL);
-	ft_strlcpy(cmd, cmd_arg, len + 1); /*free*/
+	ft_strlcpy(cmd, cmd_arg, len + 1); /*free [Y]*/
 	return (cmd);
 }
 
-char *getpath(char *cmd_arg, char **env)
+char	*getpath(char *cmd_arg, char **env)
 {
 	char	**all_paths;
 	char	*cmd;
@@ -71,12 +86,12 @@ char *getpath(char *cmd_arg, char **env)
 	size_t 	i;
 
 	i = 0;
-	all_paths = ft_split(my_getenv("PATH", env),':');
+	all_paths = ft_split(my_getenv("PATH", env), ':');
 	cmd = getcmd(cmd_arg);
-	while (*all_paths)
+	while (all_paths[i])
 	{
-		folder_path = ft_strjoin(all_paths[i], "/"); /*free*/
-		cmd_path = ft_strjoin(folder_path, cmd); /*free*/
+		folder_path = ft_strjoin(all_paths[i], "/"); /*free [Y]*/
+		cmd_path = ft_strjoin(folder_path, cmd); /*free [Y]*/
 		free(folder_path);
 		if (access(cmd_path, F_OK | X_OK) == 0) /*voir errno*/
 		{
@@ -92,14 +107,16 @@ char *getpath(char *cmd_arg, char **env)
 	return (NULL);
 }
 
-
-
 int main(int argc, char **argv, char **envp)
 {
-	char *str;
-	char name[] = "ls -l";
+	char	**param;
+	char	*path;
 
-	str = getpath(name,envp);
-	printf("%s", str);
-	free (str);
+	param = getparam(argv[1]);
+	path = getpath(argv[1], envp);
+	if (argc > 1)
+		if (execve(path, param, envp) == -1)
+			perror("execve");
+	ft_free_array(param);
+	printf("My pid is: %d\n", getpid());
 }
