@@ -6,7 +6,7 @@
 /*   By: hbourgeo <hbourgeo@student.19.be>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/27 18:02:59 by hbourgeo          #+#    #+#             */
-/*   Updated: 2022/03/31 13:13:16 by hbourgeo         ###   ########.fr       */
+/*   Updated: 2022/03/31 18:51:33 by hbourgeo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@ static void	child(char *argv[], char **env, int *tube)
 	if (fd == -1)
 		open_error();
 	close(tube[0]);
-	dup2(fd, 0);
-	dup2(tube[1], 1);
+	dup2(fd, STDIN_FILENO);
+	dup2(tube[1], STDOUT_FILENO);
 	exec_cmd(argv, env, 2);
-	close(fd);
+//	close(fd);
 }
 
 static void	parent(char *argv[], char **env, int *tube)
@@ -34,15 +34,16 @@ static void	parent(char *argv[], char **env, int *tube)
 	if (fd == -1)
 		open_error();
 	close(tube[1]);
-	dup2(fd, 1);
-	dup2(tube[0], 0);
+	dup2(fd, STDOUT_FILENO);
+	dup2(tube[0], STDIN_FILENO);
 	exec_cmd(argv, env, 3);
-	close(fd);
+//	close(fd);
 }
 
 int	main(int argc, char *argv[], char **env)
 {
 	int		tube[2];
+	int		status;
 	pid_t	pid;
 
 	if (argc != 5)
@@ -56,7 +57,7 @@ int	main(int argc, char *argv[], char **env)
 		child(argv, env, tube);
 	else
 	{
-		wait(NULL);
+		waitpid(pid, &status, WUNTRACED | WNOHANG);
 		parent(argv, env, tube);
 	}
 	return (EXIT_SUCCESS);
