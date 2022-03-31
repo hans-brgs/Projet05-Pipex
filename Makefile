@@ -6,34 +6,31 @@
 #    By: hbourgeo <hbourgeo@student.19.be>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/15 07:55:41 by hbourgeo          #+#    #+#              #
-#    Updated: 2022/03/24 17:03:49 by hbourgeo         ###   ########.fr        #
+#    Updated: 2022/03/31 16:34:46 by hbourgeo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
-NAME = libftpipex.a
+NAME = pipex
+DEPS = pipex.h
 
-SRC =
-		
+SRC = pipex.c \
+		error_handling.c \
+		utils.c	\
 
 OBJ = $(SRC:.c=.o)
 
-%.o : %.c $(DEPS)
-	$(CC) $(CFLAGS) -c $< -o $@
-
 all: $(NAME)
-	
-$(NAME) : $(OBJ)
+
+$(NAME) : $(SRC) $(DEPS)
 	make -C libft
-	cp libft/libft.a $(NAME)
-	ar -rs $(NAME) $(OBJ)
+	$(CC) $(CFLAGS) $(SRC) libft/libft.a -o $@
 
 clean :
-	rm -rf $(OBJ)
+	rm -rf $(NAME) $(OBJ)
 
 fclean : clean
-	rm -rf $(NAME)
 	make fclean -C libft
 
 re : fclean all

@@ -1,20 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec_command.c                                     :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hbourgeo <hbourgeo@student.19.be>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/24 16:08:07 by hbourgeo          #+#    #+#             */
-/*   Updated: 2022/03/27 15:38:10 by hbourgeo         ###   ########.fr       */
+/*   Updated: 2022/03/31 13:17:48 by hbourgeo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include "libft/libft.h"
+#include "pipex.h"
 
 void	ft_free_array(char **array)
 {
@@ -29,12 +25,10 @@ void	ft_free_array(char **array)
 	free(array);
 }
 
-char	**get_cmd_param(char *cmd_arg)
+static void	free_specifics_arrays(char **array1, char **array2)
 {
-	char	**cmd_param;
-	
-	cmd_param = ft_split(cmd_arg, ' '); /*free ? [N]*/
-	return (cmd_param);
+	ft_free_array(array1);
+	ft_free_array(array2);
 }
 
 char	*my_getenv(char *name, char **env)
@@ -59,50 +53,41 @@ char	*getpath(char *cmd_arg, char **env)
 	char	**cmd_param;
 	char	*folder_path;
 	char	*cmd_path;
-	size_t 	i;
+	size_t	i;
 
 	i = 0;
 	all_paths = ft_split(my_getenv("PATH", env), ':');
-	cmd_param = get_cmd_param(cmd_arg);
+	cmd_param = ft_split(cmd_arg, ' ');
 	while (all_paths[i])
 	{
-		folder_path = ft_strjoin(all_paths[i], "/"); /*free [Y]*/
-		cmd_path = ft_strjoin(folder_path, cmd_param[0]); /*free [Y]*/
+		folder_path = ft_strjoin(all_paths[i], "/");
+		cmd_path = ft_strjoin(folder_path, cmd_param[0]);
 		free(folder_path);
-		if (access(cmd_path, F_OK | X_OK) == 0) /*voir errno*/
+		if (access(cmd_path, F_OK | X_OK) == 0)
 		{
-			ft_free_array(cmd_param);
-			ft_free_array(all_paths);
+			free_specifics_arrays(cmd_param, all_paths);
 			return (cmd_path);
 		}
 		free(cmd_path);
 		i++;
 	}
-	ft_free_array(cmd_param);
-	ft_free_array(all_paths);
+	free_specifics_arrays(cmd_param, all_paths);
 	return (NULL);
 }
 
-int main(int argc, char **argv, char **envp)
+void	exec_cmd(char **argv, char **env, int cmd_pos)
 {
 	char	**cmd_param;
 	char	*path;
-	size_t	n;
 
-	n = 0;
-
-	// printf("%s\n", *argv + 1);
-	cmd_param = get_cmd_param(argv[1]);
-	
-	path = getpath(argv[1], envp);
-	printf("%s\n", path);
-	if (argc > 1)
+	cmd_param = ft_split(argv[cmd_pos], ' ');
+	path = getpath(argv[cmd_pos], env);
+	if (execve(path, cmd_param, env) == -1)
 	{
-		if (execve(path, cmd_param, NULL) == -1)
-			perror("execve");
+		ft_free_array(cmd_param);
+		free(path);
+		exec_error();
 	}
 	ft_free_array(cmd_param);
 	free(path);
-	printf("My pid is: %s\n", "test");
-	return (0);
 }
