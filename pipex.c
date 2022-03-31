@@ -6,7 +6,7 @@
 /*   By: hbourgeo <hbourgeo@student.19.be>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/27 18:02:59 by hbourgeo          #+#    #+#             */
-/*   Updated: 2022/03/31 18:51:33 by hbourgeo         ###   ########.fr       */
+/*   Updated: 2022/03/31 18:54:00 by hbourgeo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static void	child(char *argv[], char **env, int *tube)
 	dup2(fd, STDIN_FILENO);
 	dup2(tube[1], STDOUT_FILENO);
 	exec_cmd(argv, env, 2);
-//	close(fd);
+	close(fd);
 }
 
 static void	parent(char *argv[], char **env, int *tube)
@@ -37,7 +37,7 @@ static void	parent(char *argv[], char **env, int *tube)
 	dup2(fd, STDOUT_FILENO);
 	dup2(tube[0], STDIN_FILENO);
 	exec_cmd(argv, env, 3);
-//	close(fd);
+	close(fd);
 }
 
 int	main(int argc, char *argv[], char **env)
