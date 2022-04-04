@@ -5,78 +5,88 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hbourgeo <hbourgeo@student.19.be>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/18 18:39:00 by hbourgeo          #+#    #+#             */
-/*   Updated: 2022/02/04 21:53:33 by hbourgeo         ###   ########.fr       */
+/*   Created: 2021/10/01 12:18:31 by jdecorte          #+#    #+#             */
+/*   Updated: 2022/04/03 18:42:33 by hbourgeo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 #include <stdlib.h>
 
-static size_t	ft_count_element(char const *s, char c)
+static int	count_words(char const *s, char c)
 {
-	size_t	count;
-	size_t	state;
+	int		count;
+	int		i;
 
-	state = 0;
+	i = 0;
 	count = 0;
-	while (*s)
+	while (s[i])
 	{
-		if (*s == c)
-			state = 0;
-		else if (state == 0)
-		{
-			state = 1;
+		while (s[i] == c)
+			i++;
+		if (s[i] != c && s[i])
 			count++;
-		}	
-		s++;
+		while (s[i] != c && s[i])
+			i++;
 	}
 	return (count);
 }
 
-static size_t	ft_element_length(char const *s, char c)
+static void	ft_free_tab(char **tab)
 {
-	size_t	len;
+	char	**pos;
 
-	len = 0;
-	while (s[len] && s[len] != c)
-		len++;
-	return (len);
+	if (tab == NULL)
+		return ;
+	pos = tab;
+	while (*pos != NULL)
+		free(*(pos++));
+	free(tab);
 }
 
-static char	**ft_free_array(char **array, size_t n)
+static char	*ft_str(char const *s, char c)
 {
-	while (n--)
-		free(array[n]);
-	free(array);
-	return (NULL);
+	int		i;
+	char	*ptr;
+
+	i = 0;
+	while (s[i] && s[i] != c)
+		i++;
+	ptr = malloc(sizeof(char) * (i + 1));
+	if (!(ptr))
+	{
+		free(ptr);
+		return (NULL);
+	}
+	ft_strlcpy(ptr, s, i + 1);
+	return (ptr);
 }
 
 char	**ft_split(char const *s, char c)
 {
-	size_t	len_split;
-	char	**array;
-	int		nb_delim;	
-	int		n;
+	int		i;
+	int		strs_len;
+	char	**ptr;
 
 	if (!s)
+		return (0);
+	strs_len = count_words(s, c);
+	ptr = ft_calloc(sizeof(char *), (strs_len + 1));
+	if (!(ptr))
 		return (NULL);
-	n = -1;
-	nb_delim = ft_count_element(s, c);
-	array = malloc((nb_delim + 1) * sizeof(char *));
-	if (!array)
-		return (NULL);
-	while (n++ < nb_delim - 1)
+	i = -1;
+	while (++i < strs_len)
 	{
-		while (*s == c)
+		while (s[0] == c)
 			s++;
-		len_split = ft_element_length(s, c);
-		array[n] = ft_calloc(len_split + 1, sizeof(char));
-		if (!array)
-			return (ft_free_array(array, n));
-		ft_strlcpy(array[n], s, len_split + 1);
-		s = s + len_split;
+		ptr[i] = ft_str(s, c);
+		if (!(ptr[i]))
+		{
+			ft_free_tab(ptr);
+			return (NULL);
+		}
+		s += ft_strlen(ptr[i]);
 	}
-	array[nb_delim] = NULL;
-	return (array);
+	ptr[i] = 0;
+	return (ptr);
 }

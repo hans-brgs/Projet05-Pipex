@@ -5,37 +5,38 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hbourgeo <hbourgeo@student.19.be>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/16 16:33:06 by hbourgeo          #+#    #+#             */
-/*   Updated: 2022/02/01 17:07:17 by hbourgeo         ###   ########.fr       */
+/*   Created: 2021/10/01 12:18:38 by jdecorte          #+#    #+#             */
+/*   Updated: 2022/04/03 18:14:18 by hbourgeo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
+#include <stdlib.h>
 
 char	*ft_strjoin(char const *s1, char const *s2)
 {
-	char	*str_join;
-	size_t	len_str_join;
-	size_t	n;
+	char	*res;
+	int		i;
+	int		j;
 
 	if (!s1 || !s2)
+		return (0);
+	i = 0;
+	res = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
+	if (!res)
 		return (NULL);
-	n = 0;
-	len_str_join = ft_strlen(s1) + ft_strlen(s2);
-	str_join = ft_calloc(len_str_join + 1, sizeof(char));
-	if (!str_join)
-		return (NULL);
-	while (*s1)
+	while (s1[i])
 	{
-		str_join[n] = *s1;
-		s1++;
-		n++;
+		res[i] = s1[i];
+		i++;
 	}
-	while (*s2)
+	j = 0;
+	while (s2[j])
 	{
-		str_join[n] = *s2;
-		s2++;
-		n++;
+		res[i] = s2[j];
+		i++;
+		j++;
 	}
-	return (str_join);
+	res[i] = 0;
+	return (res);
 }

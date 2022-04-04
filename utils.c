@@ -6,7 +6,7 @@
 /*   By: hbourgeo <hbourgeo@student.19.be>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/24 16:08:07 by hbourgeo          #+#    #+#             */
-/*   Updated: 2022/03/31 13:17:48 by hbourgeo         ###   ########.fr       */
+/*   Updated: 2022/04/03 21:05:58 by hbourgeo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,6 @@ void	ft_free_array(char **array)
 		n++;
 	}
 	free(array);
-}
-
-static void	free_specifics_arrays(char **array1, char **array2)
-{
-	ft_free_array(array1);
-	ft_free_array(array2);
 }
 
 char	*my_getenv(char *name, char **env)
@@ -50,29 +44,27 @@ char	*my_getenv(char *name, char **env)
 char	*getpath(char *cmd_arg, char **env)
 {
 	char	**all_paths;
-	char	**cmd_param;
 	char	*folder_path;
 	char	*cmd_path;
 	size_t	i;
 
 	i = 0;
 	all_paths = ft_split(my_getenv("PATH", env), ':');
-	cmd_param = ft_split(cmd_arg, ' ');
 	while (all_paths[i])
 	{
 		folder_path = ft_strjoin(all_paths[i], "/");
-		cmd_path = ft_strjoin(folder_path, cmd_param[0]);
+		cmd_path = ft_strjoin(folder_path, cmd_arg);
 		free(folder_path);
 		if (access(cmd_path, F_OK | X_OK) == 0)
 		{
-			free_specifics_arrays(cmd_param, all_paths);
+			ft_free_array(all_paths);
 			return (cmd_path);
 		}
 		free(cmd_path);
 		i++;
 	}
-	free_specifics_arrays(cmd_param, all_paths);
-	return (NULL);
+	ft_free_array(all_paths);
+	return (cmd_arg);
 }
 
 void	exec_cmd(char **argv, char **env, int cmd_pos)
@@ -81,11 +73,12 @@ void	exec_cmd(char **argv, char **env, int cmd_pos)
 	char	*path;
 
 	cmd_param = ft_split(argv[cmd_pos], ' ');
-	path = getpath(argv[cmd_pos], env);
+	path = getpath(cmd_param[0], env);
 	if (execve(path, cmd_param, env) == -1)
 	{
+		ft_putstr_fd("pipex: command not found: ", 2);
+		ft_putendl_fd(cmd_param[0], 2);
 		ft_free_array(cmd_param);
-		free(path);
 		exec_error();
 	}
 	ft_free_array(cmd_param);

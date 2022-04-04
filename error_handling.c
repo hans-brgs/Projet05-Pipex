@@ -6,7 +6,7 @@
 /*   By: hbourgeo <hbourgeo@student.19.be>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/31 12:25:11 by hbourgeo          #+#    #+#             */
-/*   Updated: 2022/03/31 12:31:35 by hbourgeo         ###   ########.fr       */
+/*   Updated: 2022/04/04 12:27:29 by hbourgeo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,5 @@ void	fork_error(void)
 
 void	exec_error(void)
 {
-	perror("execve()");
 	exit(EXIT_FAILURE);
 }
